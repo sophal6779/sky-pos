@@ -1,0 +1,1454 @@
+<!DOCTYPE html>
+<html lang="km" class="h-full">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sky Club Restaurant</title>
+
+    <!-- Google Fonts: Kantumruy Pro -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:ital,wght@0,100..700;1,100..700&display=swap"
+        rel="stylesheet">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        khmer: ['"Kantumruy Pro"', 'sans-serif']
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Chart.js for Dashboard Statistics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body {
+            font-family: 'Kantumruy Pro', sans-serif;
+            touch-action: manipulation;
+        }
+
+        /* Custom Scrollbars */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+        }
+
+        .dark ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .dark ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+
+            .print-only {
+                display: block !important;
+            }
+        }
+
+        .print-only {
+            display: none;
+        }
+    </style>
+</head>
+
+<body
+    class="bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-100 h-full flex flex-col font-khmer transition-colors duration-200">
+
+    <!-- Navigation Bar -->
+    <header
+        class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 shadow-sm sticky top-0 z-30 no-print">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Logo & Brand Name -->
+                <div class="flex items-center space-x-3 space-x-reverse">
+                    <div class="w-18 h-10 flex items-center justify-center font-black text-xl shadow-md">
+                        <img src="Image/sky.png" alt="Sky club logo" class="w-16 h-12 md:w-18 md:h-12">
+                    </div>
+                    <div>
+                        <span
+                            class="text-xl font-bold bg-gradient-to-r from-amber-600 to-emerald-500 bg-clip-text text-transparent">Sky
+                            Club POS</span>
+                        <span
+                            class="text-xs block text-slate-500 dark:text-slate-400">ប្រព័ន្ធគ្រប់គ្រងភោជនីយដ្ឋាន</span>
+                    </div>
+                </div>
+
+                <!-- Navigation Tabs -->
+                <nav class="flex space-x-2 sm:space-x-4">
+                    <button id="nav-pos-btn" onclick="switchTab('pos')"
+                        class="px-3 sm:px-4 py-2 rounded-lg text-sm sm:text-base font-semibold transition-all duration-200 flex items-center gap-2 bg-amber-600 text-white shadow-md shadow-amber-600/20">
+                        <i class="fa-solid fa-cash-register"></i>
+                        <span>កន្លែងលក់ POS</span>
+                    </button>
+                    <button id="nav-dashboard-btn" onclick="switchTab('dashboard')"
+                        class="px-3 sm:px-4 py-2 rounded-lg text-sm sm:text-base font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all duration-200 flex items-center gap-2">
+                        <i class="fa-solid fa-chart-line"></i>
+                        <span>ផ្ទាំងគ្រប់គ្រង</span>
+                    </button>
+                </nav>
+
+                <!-- Actions: Dark mode toggle & mobile sidebar openers -->
+                <div class="flex items-center gap-2">
+                    <button id="dark-mode-toggle" onclick="toggleDarkMode()"
+                        class="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
+                        title="ប្តូរ Dark/Light Mode">
+                        <i id="dark-mode-icon" class="fa-solid fa-moon text-lg"></i>
+                    </button>
+                    <!-- Responsive Mobile Drawer Toggle Buttons -->
+                    <button onclick="toggleMobileTables()"
+                        class="md:hidden p-2.5 rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-200"
+                        title="មើលតុ">
+                        <i class="fa-solid fa-chair text-lg"></i>
+                    </button>
+                    <button onclick="toggleMobileCart()"
+                        class="lg:hidden p-2.5 rounded-xl bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300 relative"
+                        title="មើលកុម្ម៉ង់">
+                        <i class="fa-solid fa-receipt text-lg"></i>
+                        <span id="mobile-cart-badge"
+                            class="absolute -top-1 -right-1 bg-amber-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold hidden">0</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-2 sm:p-4 gap-4 overflow-hidden flex flex-col no-print">
+
+        <!-- POS SALES VIEW -->
+        <div id="view-pos" class="flex-1 flex flex-col md:flex-row gap-4 h-full min-h-0">
+
+            <!-- LEFT SIDEBAR: TABLES SIDEBAR -->
+            <aside id="tables-sidebar"
+                class="fixed inset-y-0 left-0 z-40 w-72 bg-white dark:bg-slate-800 p-4 border-r border-slate-200 dark:border-slate-700 transform -translate-x-full md:relative md:translate-x-0 md:w-64 lg:w-72 md:inset-auto md:border-r-0 md:rounded-2xl shadow-lg md:shadow-sm transition-transform duration-300 flex flex-col">
+                <div class="flex justify-between items-center mb-3">
+                    <h2 class="font-bold text-lg text-slate-800 dark:text-white flex items-center gap-2">
+                        <i class="fa-solid fa-border-all text-amber-600"></i>
+                        <span>បញ្ជីតុអាហារ (៣០)</span>
+                    </h2>
+                    <button onclick="toggleMobileTables()" class="md:hidden text-slate-400 hover:text-slate-600">
+                        <i class="fa-solid fa-xmark text-xl"></i>
+                    </button>
+                </div>
+
+                <!-- Table Search Filter -->
+                <div class="relative mb-3">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-slate-400 text-xs"></i>
+                    <input type="text" id="table-search-input" onkeyup="filterTables()" placeholder="ស្វែងរកតុ..."
+                        class="w-full pl-8 pr-3 py-1.5 text-xs rounded-lg bg-slate-100 dark:bg-slate-700 border-none text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-green-500 outline-none">
+                </div>
+
+                <!-- Scrollable Table Section -->
+                <div class="flex-1 overflow-y-auto space-y-4 pr-1" id="tables-container">
+                    <!-- Standard Tables (1-16) -->
+                    <div>
+                        <div
+                            class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2 flex items-center justify-between">
+                            <span>តុធម្មតា (១-១៦)</span>
+                            <span
+                                class="bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-1.5 py-0.5 rounded text-[10px]">16
+                                តុ</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2" id="grid-standard-tables"></div>
+                    </div>
+
+                    <!-- Round Tables (17-19) -->
+                    <div>
+                        <div
+                            class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2 flex items-center justify-between">
+                            <span>តុមូល (១៧-១៩)</span>
+                            <span
+                                class="bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-1.5 py-0.5 rounded text-[10px]">3
+                                តុ</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2" id="grid-round-tables"></div>
+                    </div>
+
+                    <!-- Back Area Tables (20-30) -->
+                    <div>
+                        <div
+                            class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2 flex items-center justify-between">
+                            <span>តុក្រោយ (២០-៣០)</span>
+                            <span
+                                class="bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-1.5 py-0.5 rounded text-[10px]">11
+                                តុ</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2" id="grid-back-tables"></div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- CENTER SECTION: MENU CATEGORIES & ITEMS (70 ITEMS) -->
+            <section
+                class="flex-1 flex flex-col bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm min-w-0 overflow-hidden">
+                <!-- Search & Active Table Header -->
+                <div class="flex flex-col sm:flex-row gap-3 justify-between items-start sm:items-center mb-4">
+                    <div class="flex items-center gap-2">
+                        <span id="active-table-badge"
+                            class="bg-green-100 text-green-800 dark:bg-green-900/60 dark:text-green-300 font-bold px-3 py-1 rounded-xl text-base border border-green-300 dark:border-green-700">
+                            តុលេខ ១
+                        </span>
+                        <span class="text-xs text-slate-500 dark:text-slate-400">ជ្រើសរើសមុខម្ហូបបន្ថែមទៅតុ</span>
+                    </div>
+                    <!-- Menu Search Bar -->
+                    <div class="relative w-full sm:w-64">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-slate-400 text-sm"></i>
+                        <input type="text" id="menu-search-input" onkeyup="filterMenu()"
+                            placeholder="ស្វែងរកមុខម្ហូប ឬ ភេសជ្ជៈ..."
+                            class="w-full pl-9 pr-4 py-2 text-sm rounded-xl bg-slate-100 dark:bg-slate-700 border-none text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-green-500 outline-none">
+                    </div>
+                </div>
+
+                <!-- Categories Horizontal Scroll -->
+                <div class="flex items-center space-x-2 overflow-x-auto pb-2 mb-3 no-scrollbar" id="category-tabs">
+                    <!-- Dynamic categories generated by JS -->
+                </div>
+
+                <!-- Menu Dishes Grid (70 Items Scrollable) -->
+                <div class="flex-1 overflow-y-auto pr-1">
+                    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3"
+                        id="menu-items-grid">
+                        <!-- Populated dynamically via Javascript -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- RIGHT SIDEBAR: TABLE ORDER CART -->
+            <aside id="cart-sidebar"
+                class="fixed inset-y-0 right-0 z-40 w-80 bg-white dark:bg-slate-800 p-4 border-l border-slate-200 dark:border-slate-700 transform translate-x-full lg:relative lg:translate-x-0 lg:w-80 lg:border-l-0 lg:rounded-2xl shadow-lg lg:shadow-sm transition-transform duration-300 flex flex-col">
+                <div class="flex justify-between items-center pb-3 border-b border-slate-200 dark:border-slate-700">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-basket-shopping text-amber-600 text-xl"></i>
+                        <h2 class="font-bold text-slate-800 dark:text-white" id="cart-title">បញ្ជីកុម្ម៉ង់ - តុលេខ ១
+                        </h2>
+                    </div>
+                    <button onclick="toggleMobileCart()" class="lg:hidden text-slate-400 hover:text-slate-600">
+                        <i class="fa-solid fa-xmark text-xl"></i>
+                    </button>
+                </div>
+
+                <!-- Order List Items -->
+                <div class="flex-1 overflow-y-auto py-3 space-y-2" id="cart-items-container">
+                    <!-- Populated dynamically -->
+                </div>
+
+                <!-- Order Summary & Actions Footer -->
+                <div class="pt-3 border-t border-slate-200 dark:border-slate-700 space-y-3">
+                    <div class="space-y-1.5 text-xs">
+                        <div class="flex justify-between text-slate-500 dark:text-slate-400">
+                            <span>ចំនួនមុខម្ហូប:</span>
+                            <span id="cart-total-items-count" class="font-semibold text-slate-800 dark:text-slate-200">0
+                                មុខ</span>
+                        </div>
+                        <div class="flex justify-between text-slate-500 dark:text-slate-400">
+                            <span>តម្លៃសរុប (Total):</span>
+                            <span id="cart-subtotal" class="font-semibold text-slate-800 dark:text-slate-200">₩0</span>
+                        </div>
+                        <!-- ពន្ធ ១០% ត្រូវបានលុបចេញពីការគណនា -->
+                        <div
+                            class="flex justify-between text-base font-bold text-slate-900 dark:text-white pt-1.5 border-t border-dashed border-slate-200 dark:border-slate-700">
+                            <span>សរុបរួម (Grand Total):</span>
+                            <span id="cart-grand-total" class="text-amber-600 dark:text-green-400 text-lg">₩0</span>
+                        </div>
+                    </div>
+
+                    <!-- Actions (All Primary Buttons styled GREEN) -->
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="clearCurrentTableOrder()"
+                            class="px-3 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors">
+                            <i class="fa-solid fa-trash-can"></i>
+                            <span>លុបទាំងអស់</span>
+                        </button>
+                        <button onclick="openPrintModal()"
+                            class="px-3 py-2 bg-green-100 hover:bg-green-200 dark:bg-green-900/40 dark:hover:bg-green-900/60 text-green-700 dark:text-green-300 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors">
+                            <i class="fa-solid fa-print"></i>
+                            <span>បោះពុម្ពវិក្កយបត្រ</span>
+                        </button>
+                    </div>
+                    <button onclick="openCheckoutModal()"
+                        class="w-full py-3 bg-amber-600 hover:bg-green-700 text-white font-bold rounded-xl shadow-lg shadow-amber-600/30 flex items-center justify-center gap-2 transition-all active:scale-95 text-sm">
+                        <i class="fa-solid fa-circle-check"></i>
+                        <span>ទូទាត់ប្រាក់ (Checkout)</span>
+                    </button>
+                </div>
+            </aside>
+        </div>
+
+        <!-- DASHBOARD VIEW -->
+        <div id="view-dashboard" class="hidden flex-1 flex-col gap-4 overflow-y-auto pr-1">
+
+            <!-- Dashboard Stats Summary Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <!-- Total Revenue -->
+                <div
+                    class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                            ចំណូលសរុប (Total Revenue)</p>
+                        <h3 class="text-2xl font-black text-amber-600 dark:text-green-400 mt-1" id="dash-total-revenue">
+                            ₩0</h3>
+                        <p class="text-xs text-slate-400 mt-1"><i class="fa-solid fa-arrow-trend-up text-green-500"></i>
+                            ប្រាក់វ៉ុនកូរ៉េគិតសរុប</p>
+                    </div>
+                    <div
+                        class="w-12 h-12 rounded-2xl bg-green-100 dark:bg-green-900/50 text-amber-600 dark:text-green-400 flex items-center justify-center text-xl">
+                        <i class="fa-solid fa-won-sign"></i>
+                    </div>
+                </div>
+
+                <!-- Total Transactions -->
+                <div
+                    class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                            ចំនួនការទូទាត់ (Transactions)</p>
+                        <h3 class="text-2xl font-black text-slate-800 dark:text-white mt-1"
+                            id="dash-total-transactions">0</h3>
+                        <p class="text-xs text-slate-400 mt-1">ប្រតិបត្តិការជោគជ័យ</p>
+                    </div>
+                    <div
+                        class="w-12 h-12 rounded-2xl bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 flex items-center justify-center text-xl">
+                        <i class="fa-solid fa-receipt"></i>
+                    </div>
+                </div>
+
+                <!-- Dashboard Quick Actions -->
+                <div
+                    class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-between">
+                    <p class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">
+                        សកម្មភាពទិន្នន័យ (Data Actions)</p>
+                    <div class="flex gap-2">
+                        <button onclick="exportSalesPDF()"
+                            class="flex-1 py-2.5 px-3 bg-amber-600 hover:bg-green-700 text-white text-xs font-semibold rounded-xl flex items-center justify-center gap-1.5 transition-colors shadow-md shadow-amber-600/20">
+                            <i class="fa-solid fa-file-pdf text-sm"></i>
+                            <span>រក្សាទិន្នន័យលក់ជា PDF</span>
+                        </button>
+                        <button onclick="confirmResetSalesData()"
+                            class="py-2.5 px-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-xs font-semibold rounded-xl flex items-center justify-center gap-1.5 transition-colors">
+                            <i class="fa-solid fa-trash-arrow-up text-sm"></i>
+                            <span>លុបចោលទាំងអស់</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard Analytics Chart Section -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <div
+                    class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                    <h4 class="text-sm font-bold text-slate-800 dark:text-white mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-chart-column text-amber-600"></i>
+                        <span>ចំណូលតាមប្រភពប្រភេទអាហារ</span>
+                    </h4>
+                    <div class="h-60 relative">
+                        <canvas id="categorySalesChart"></canvas>
+                    </div>
+                </div>
+                <div
+                    class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                    <h4 class="text-sm font-bold text-slate-800 dark:text-white mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-chart-line text-amber-600"></i>
+                        <span>ប្រវត្តិនិន្នាការលក់តាមម៉ោង</span>
+                    </h4>
+                    <div class="h-60 relative">
+                        <canvas id="hourlySalesChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Transactions Table -->
+            <div
+                class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col">
+                <div class="p-4 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
+                    <h4 class="font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                        <i class="fa-solid fa-list-check text-amber-600"></i>
+                        <span>តារាងប្រវត្តិប្រតិបត្តិការលក់ចុងក្រោយ (Recent Transactions)</span>
+                    </h4>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm">
+                        <thead
+                            class="bg-slate-50 dark:bg-slate-700/50 text-slate-500 dark:text-slate-400 text-xs font-semibold">
+                            <tr>
+                                <th class="p-3">កូដវិក្កយបត្រ</th>
+                                <th class="p-3">តុអាហារ</th>
+                                <th class="p-3">កាលបរិច្ឆេទ & ម៉ោង</th>
+                                <th class="p-3">ប្រភេទបង់ប្រាក់</th>
+                                <th class="p-3">ចំនួនប្រាក់សរុប (₩)</th>
+                                <th class="p-3 text-right">សកម្មភាព</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recent-transactions-tbody"
+                            class="divide-y divide-slate-200 dark:divide-slate-700 text-slate-700 dark:text-slate-300">
+                            <!-- Dynamic rows -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- PAYMENT & CHECKOUT MODAL -->
+    <div id="checkout-modal"
+        class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 hidden no-print">
+        <div
+            class="bg-white dark:bg-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-700 space-y-4">
+            <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-700 pb-3">
+                <h3 class="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                    <i class="fa-solid fa-credit-card text-amber-600"></i>
+                    <span>ទូទាត់ប្រាក់ (Checkout)</span>
+                </h3>
+                <button onclick="closeCheckoutModal()"
+                    class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+
+            <div class="space-y-3">
+                <div class="bg-slate-50 dark:bg-slate-700/50 p-3 rounded-xl text-center">
+                    <span class="text-xs text-slate-500 dark:text-slate-400 block">ប្រាក់ត្រូវទូទាត់សរុប</span>
+                    <span id="modal-checkout-amount"
+                        class="text-2xl font-black text-amber-600 dark:text-green-400">₩0</span>
+                </div>
+
+                <div>
+                    <label
+                        class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-2">វិធីសាស្ត្រទូទាត់:</label>
+                    <div class="grid grid-cols-3 gap-2">
+                        <button onclick="selectPaymentMethod('Cash')" id="pay-method-cash"
+                            class="pay-method-btn p-3 rounded-xl border-2 border-amber-600 bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-xs font-bold flex flex-col items-center gap-1">
+                            <i class="fa-solid fa-money-bill-wave text-base"></i>
+                            <span>លុយសុទ្ធ</span>
+                        </button>
+                        <button onclick="selectPaymentMethod('Card')" id="pay-method-card"
+                            class="pay-method-btn p-3 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-xs font-bold flex flex-col items-center gap-1 hover:border-green-500">
+                            <i class="fa-solid fa-credit-card text-base"></i>
+                            <span>កោសកាត</span>
+                        </button>
+                        <button onclick="selectPaymentMethod('Mobile Pay')" id="pay-method-mobile"
+                            class="pay-method-btn p-3 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-xs font-bold flex flex-col items-center gap-1 hover:border-green-500">
+                            <i class="fa-solid fa-mobile-screen text-base"></i>
+                            <span>បាញ់លុយ</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div>
+                    <label
+                        class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">ប្រាក់ទទួលបានពីអតិថិជន
+                        (₩):</label>
+                    <input type="number" id="received-amount-input" oninput="calculateChange()" placeholder="0"
+                        class="w-full px-3 py-2 bg-slate-100 dark:bg-slate-700 border-none rounded-xl text-lg font-bold text-slate-800 dark:text-white outline-none focus:ring-2 focus:ring-green-500">
+                </div>
+
+                <div
+                    class="flex justify-between items-center text-sm font-semibold pt-2 border-t border-slate-200 dark:border-slate-700">
+                    <span class="text-slate-600 dark:text-slate-300">ប្រាក់អាប់ជូនវិញ (Change):</span>
+                    <span id="change-amount-display" class="text-base text-slate-800 dark:text-white">₩0</span>
+                </div>
+            </div>
+
+            <div class="pt-2 flex gap-2">
+                <button onclick="closeCheckoutModal()"
+                    class="flex-1 py-2.5 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl font-bold text-xs">
+                    បោះបង់
+                </button>
+                <button onclick="processPayment()"
+                    class="flex-1 py-2.5 bg-amber-600 hover:bg-green-700 text-white rounded-xl font-bold text-xs shadow-lg shadow-amber-600/30">
+                    បញ្ជាក់ការទូទាត់
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PRINT RECEIPT PREVIEW MODAL -->
+    <div id="print-modal"
+        class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 hidden no-print">
+        <div
+            class="bg-white dark:bg-slate-800 rounded-2xl max-w-sm w-full p-5 shadow-2xl border border-slate-200 dark:border-slate-700 flex flex-col max-h-[90vh]">
+            <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-700 pb-2 mb-3">
+                <h3 class="text-base font-bold text-slate-800 dark:text-white">មើលគំរូវិក្កយបត្រ (Receipt)</h3>
+                <button onclick="closePrintModal()" class="text-slate-400 hover:text-slate-600">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Receipt Content Container for Printing -->
+            <div id="receipt-printable-area"
+                class="overflow-y-auto bg-amber-50/40 dark:bg-slate-900 p-4 rounded-xl border border-amber-200/50 dark:border-slate-700 text-slate-800 dark:text-slate-200 font-mono text-xs space-y-3">
+                <div class="text-center space-y-1">
+                    <h2
+                        class="text-base font-bold font-khmer uppercase tracking-wider text-green-700 dark:text-green-400">
+                        Sky Club Restaurant</h2>
+                    <p class="text-[10px] text-slate-500">អាសយដ្ឋាន: 송우리 터미널</p>
+                    <p class="text-[10px] text-slate-500">ទូរស័ព្ទ: 010-2039-3998/ 010-3726-8606</p>                    
+
+                    <div class="border-b border-dashed border-slate-400 my-2"></div>
+                </div>
+
+                <div class="space-y-0.5 text-[11px] font-khmer">
+                    <div class="flex justify-between"><span>វិក្កយបត្រ #:</span><span id="receipt-id">#INV-0001</span>
+                    </div>
+                    <div class="flex justify-between"><span>តុអាហារ:</span><span id="receipt-table-no">តុលេខ ១</span>
+                    </div>
+                    <div class="flex justify-between"><span>កាលបរិច្ឆេទ:</span><span id="receipt-date">00/00/0000
+                            00:00</span></div>
+                </div>
+
+                <div class="border-b border-dashed border-slate-400 my-2"></div>
+
+                <!-- Receipt Items -->
+                <div id="receipt-items-list" class="space-y-1.5 font-khmer">
+                    <!-- Dynamic -->
+                </div>
+
+                <div class="border-b border-dashed border-slate-400 my-2"></div>
+
+                <div class="space-y-1 text-xs font-khmer">
+                    <div class="flex justify-between text-slate-600 dark:text-slate-400 text-[11px]">
+                        <span>តម្លៃសរុប (Total):</span>
+                        <span id="receipt-subtotal">₩0</span>
+                    </div>
+                    <!-- ពន្ធត្រូវបានលុបចេញពីវិក្កយបត្រ -->
+                    <div
+                        class="flex justify-between font-bold text-sm pt-1 border-t border-dashed border-slate-300 dark:border-slate-700">
+                        <span>សរុបរួម (Grand Total):</span>
+                        <span id="receipt-grand-total" class="text-amber-600">₩0</span>
+                    </div>
+                </div>
+
+                <div class="text-center pt-2 text-[10px] text-slate-500 font-khmer">
+                    <div class="space-y-0.5 text-[11px] font-khmer">
+                    <div class="flex justify-between text-bold"><span>ធនាគារ</span>:<span>기엄은핼 IBK // 우리은행 Woori</span> </div>
+                    <div class="flex justify-between text-bold"><span>លេខកុង</span>:<span>010-2039-3998</span> </div>
+                    <div class="flex justify-between text-bold"><span>ឈ្មោះ</span>:<span>김민지</span> </div>                    
+                </div>
+                    <p>សូមអរគុណ! Thank You!</p>
+                    <p>សូមអញ្ជើញមកពិសាម្តងទៀត!</p>
+                </div>
+            </div>
+
+            <div class="pt-3 flex gap-2">
+                <button onclick="closePrintModal()"
+                    class="flex-1 py-2 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl font-bold text-xs">
+                    បិទ
+                </button>
+                <button onclick="triggerReceiptPrint()"
+                    class="flex-1 py-2 bg-amber-600 hover:bg-green-700 text-white rounded-xl font-bold text-xs shadow-md shadow-amber-600/30 flex items-center justify-center gap-1.5">
+                    <i class="fa-solid fa-print"></i>
+                    <span>បោះពុម្ព</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PRINT ONLY TEMPLATE (HIDDEN ON SCREEN) -->
+    <div id="print-paper" class="print-only p-8 bg-white text-black font-khmer text-sm">
+        <!-- Rendered dynamically during window.print() -->
+    </div>
+
+    <script>
+        // Global Application State Data
+        const CATEGORIES = [
+            {id: 'all', name: 'ទាំងអស់'},
+            {id: 'fried_rice', name: 'បាយឆា'},
+            {id: 'snack', name: 'អាហារសម្រន់'},
+            {id: 'boklahong', name: 'បុកល្ហុង'},
+            {id: 'soup', name: 'ត្រី និងសម្លរ'},
+            {id: 'klem', name: 'ម្ហូបឆា សាច់ក្លែម'},
+            {id: 'beverages', name: 'ភេសជ្ជៈ'},
+            {id: 'beer', name: 'ស្រាបៀរ'},
+        ];
+
+        // 70 Distinct Menu Items with Korean Won Prices (₩)
+        const MENU_ITEMS = [
+            // បាយឆា (Fried Rice) - 15 items
+            {id: 100, category: 'fried_rice', name: 'បាយសាច់ជ្រូក', price: 12000, image: "Image/bay-pork.png"},
+            {id: 101, category: 'fried_rice', name: 'បាយម្រះព្រៅ', price: 12000, image: "Image/bay-maras.png"},
+            {id: 102, category: 'fried_rice', name: 'បាយឡុកឡាក់', price: 12000, image: "Image/bay-loklak.png"},
+            {id: 103, category: 'fried_rice', name: 'បាយស្លាបមាន់', price: 12000, image: "Image/bay-slab-mn.png"},
+            {id: 104, category: 'fried_rice', name: 'បាយឆាសាច់គោ', price: 10000, image: "Image/bay-char-kor.png"},
+            {id: 105, category: 'fried_rice', name: 'បាយឆាបង្គារ', price: 10000, image: "Image/bay-char-bonkea.png"},
+            {id: 106, category: 'fried_rice', name: 'បាយឆាសាច់ក្រក', price: 10000, image: "Image/bay-char-sajkrok.png"},
+            {id: 107, category: 'fried_rice', name: 'បាយឆាគ្រឿងសមុទ្រ', price: 10000, image: "Image/bay3.png"},
+            {id: 108, category: 'fried_rice', name: 'បាយឆាចានធំ', price: 20000, image: "Image/bay4.png"},
+            {id: 109, category: 'fried_rice', name: 'បាយស (តូច)', price: 1000, image: "Image/bay1.png"},
+            {id: 110, category: 'fried_rice', name: 'បាយស (ធំ)', price: 3000, image: "Image/bay2.png"},
+            {id: 111, category: 'fried_rice', name: 'ថែម បន្លែ', price: 8000, image: "Image/vegetable.png"},
+            {id: 112, category: 'fried_rice', name: 'ថែមសាច់', price: 10000, image: "Image/saj.png"},
+            {id: 113, category: 'fried_rice', name: 'ថែមមី', price: 2000, image: "Image/mi1.png"},
+            {id: 114, category: 'fried_rice', name: 'បាយឆាសាហ្វ្រនពិសេស', price: 15000, icon: 'fa-crown'},
+
+            // ភេសជ្ជៈ (Beverages) - 15 items
+            {id: 200, category: 'beverages', name: 'កាហ្វេដូងក្រអូប', price: 5000, image: "Image/te7.png"},
+            {id: 201, category: 'beverages', name: 'តែក្រូចឆ្មារ', price: 5000, image: "Image/te1.png"},
+            {id: 202, category: 'beverages', name: 'តែបៃតងទឹកដោះគោ', price: 5000, image: "Image/te1-3.png"},
+            {id: 203, category: 'beverages', name: 'តែក្រហមទឹកដោះគោ', price: 5000, image: "Image/te1-2.png"},
+            {id: 204, category: 'beverages', name: 'តែបៃតងក្រូចឆ្មា', price: 5000, image: "Image/te2.png"},
+            {id: 205, category: 'beverages', name: 'តែបៃតងឡាតេដូងក្រអូប', price: 5000, image: "Image/te2-2.png"},
+            {id: 206, category: 'beverages', name: 'តែបៃតងដំឡូងស្វាយ', price: 5000, image: "Image/te2-3.png"},
+            {id: 207, category: 'beverages', name: 'តែមេអំបៅដំឡួងស្វាយ', price: 5000, image: "Image/te3.png"},
+            {id: 208, category: 'beverages', name: 'តែមេអំបៅដូងក្រអូប', price: 5000, image: "Image/te3-1.png"},
+            {id: 209, category: 'beverages', name: 'តែមេអំបៅទឹកដោះគោ', price: 5000, image: "Image/te3-2.png"},
+            {id: 210, category: 'beverages', name: 'ផាសិនដោះគោតែបៃតង', price: 5000, image: "Image/te4.png"},
+            {id: 211, category: 'beverages', name: 'ផាសិនដោះគោតែក្រហម', price: 5000, image: "Image/te4-1.png"},
+            {id: 212, category: 'beverages', name: 'ផាសិនដោះគោតែមេអំបៅ', price: 5000, image: "Image/te4-2.png"},
+            {id: 213, category: 'beverages', name: 'ប័រក្រឡុក', price: 5000, image: "Image/te6.png"},
+            {id: 214, category: 'beverages', name: 'ទឹកអំពៅ', price: 5000, image: "Image/te8.png"},
+            {id: 215, category: 'beverages', name: 'តែគុជ', price: 5000, image: "Image/te5.png"},
+            {id: 216, category: 'beverages', name: 'ដូង ១ផ្លែ', price: 5000, image: "Image/te9.png"},
+            {id: 217, category: 'beverages', name: 'ស្ទីង ឬអាយដល', price: 4000, image: "Image/idol.png"},
+            {id: 218, category: 'beverages', name: 'ទឹកក្រូច', price: 2000, image: "Image/coca.png"},
+            {id: 219, category: 'beverages', name: 'បង្អែម', price: 8000, image: "Image/.png"},
+
+            // ស្រាបៀរ (Beer) - 12 items
+            {id: 300, category: 'beer', name: 'Cass (1 យួរ)', price: 30000, image: "Image/cass.png"},
+            {id: 301, category: 'beer', name: 'ABC (1 យួរ)', price: 36000, image: "Image/abc.png"},
+            {id: 302, category: 'beer', name: 'Hanuman(1 យួរ)', price: 36000, image: "Image/hanuman.png"},
+            {id: 303, category: 'beer', name: 'Heineken (1យួរ)', price: 36000, image: "Image/heineken.png"},
+            {id: 304, category: 'beer', name: 'Cambodia (1 យួរ)', price: 36000, image: "Image/cambodia.png"},
+            {id: 305, category: 'beer', name: 'SPY 1 ដប', price: 6000, image: "Image/spy.png"},
+            {id: 306, category: 'beer', name: 'ស្រាសរ 참이슬', price: 6000, image: "Image/jamisel.png"},
+            {id: 307, category: 'beer', name: 'ស្រាសរ 차몽', price: 6000, image: "Image/jamong.png"},
+            {id: 308, category: 'beer', name: 'Cass 1 ដប', price: 5000, image: "Image/cass.png"},
+            {id: 309, category: 'beer', name: 'ABC 1 កំប៉ុង', price: 6000, image: "Image/abc.png"},
+            {id: 310, category: 'beer', name: 'Hanuman 1 ដប', price: 6000, image: "Image/hanuman.png"},
+            {id: 311, category: 'beer', name: 'Heineken 1 ដប', price: 6000, image: "Image/heineken.png"},
+            {id: 312, category: 'beer', name: 'Cambodia 1 ដប', price: 6000, image: "Image/cambodia.png"},
+            
+            // សម្លរ (Soups) - 14 items
+            {id: 400, category: 'soup', name: 'ស៊ុបយ៉ាវហន', price: 40000, image: "Image/sop-yavhorn.png"},
+            {id: 401, category: 'soup', name: 'ស៊ុបគោ', price: 35000, image: "Image/sop-kor.png"},
+            {id: 402, category: 'soup', name: 'ត្រីឡាបយ៉ាជូអែម', price: 25000, image: "Image/labya-juem.png"},
+            {id: 403, category: 'soup', name: 'ត្រីឡាបយ៉ាចៀនជួន', price: 25000, image: "Image/labya-jenjun.png"},
+            {id: 404, category: 'soup', name: 'ត្រីអណ្តែងបំពង', price: 25000, image: "Image/andeng-bompong.png"},
+            {id: 405, category: 'soup', name: 'សម្លរកកូរ', price: 18000, image: "Image/somlor-kkor.png"},
+            {id: 406, category: 'soup', name: 'សម្លរម្ជូរគ្រឿង', price: 18000, image: "Image/somlor-maju.png"},
+            {id: 407, category: 'soup', name: 'សម្លរម្ជូរខ្ទិះម្នាស់', price: 18000, image: "Image/somlor-ktei.png"},
+            {id: 408, category: 'soup', name: 'សម្លរម្ជូរយួន', price: 18000, image: "Image/somlor-majuyun.png"},
+            {id: 409, category: 'soup', name: 'សម្លរតុងយ៉ាំ', price: 18000, image: "Image/somlor-tongyam.png"},
+
+            // អាហារសម្រន់ (Snacks) - 14 items
+            {id: 499, category: 'snack', name: 'លតឆា ឬមីឆា', price: 12000, image: "Image/1-lot-char.png"},
+            {id: 500, category: 'snack', name: 'គុយទាវសាច់គោ', price: 10000, image: "Image/kuyteav-kor.png"},
+            {id: 501, category: 'snack', name: 'មីសាច់គោ', price: 10000, image: "Image/mi2.png"},
+            {id: 502, category: 'snack', name: 'គុយទាវ ឬមីខគោ', price: 12000, image: "Image/kuyteav-khor-kor.png"},
+            {id: 503, category: 'snack', name: 'បបរគ្រឿង ១ចាន', price: 12000, image: "Image/bobor-mn.png"},
+            {id: 504, category: 'snack', name: 'បបរគ្រឿង ១ឆ្នាំង', price: 30000, image: "Image/bobor-sea.png"},
+            {id: 505, category: 'snack', name: 'នំបញ្ចុកសម្លរខ្មែរ', price: 12000, image: "Image/nom-khmer.png"},
+            {id: 506, category: 'snack', name: 'នំបញ្ចុកសម្លរការី', price: 12000, image: "Image/nom-kari.png"},
+            {id: 507, category: 'snack', name: 'នំបញ្ចុកខួរក្តាម', price: 12000, image: "Image/nom-kdam.png"},
+            {id: 508, category: 'snack', name: 'បាញ់ឆែវ', price: 12000, image: "Image/banh-chev.png"},
+            {id: 509, category: 'snack', name: 'បាញ់ស៊ុង', price: 12000, image: "Image/banh-song.png"},
+            {id: 510, category: 'snack', name: 'បាញ់ហយ', price: 12000, image: "Image/banh-hoy.png"},
+            {id: 511, category: 'snack', name: 'នំបុ័ងសាច់', price: 10000, image: "Image/nombang-bate.png"},
+            {id: 512, category: 'snack', name: 'សាច់គោអាំង (តូច)', price: 10000, image: "Image/sajkor-ang.png"},
+            {id: 513, category: 'snack', name: 'សាច់គោអាំង (ធំ)', price: 20000, image: "Image/sajkor-ang.png"},
+
+            // បុកល្ហុង (boklahong) - 8 items
+            {id: 600, category: 'boklahong', name: 'បុកល្ហុង', price: 12000, image: "Image/boklahong.png"},
+            {id: 601, category: 'boklahong', name: 'បុកបង្គារ', price: 18000, image: "Image/bok-kea.png"},
+            {id: 602, category: 'boklahong', name: 'បុកងាវ', price: 18000, image: "Image/boklahong-ngeav.png"},
+            {id: 603, category: 'boklahong', name: 'បុកគ្រឿងសមុទ្រ (តូច)', price: 18000, image: "Image/bok.sea.png"},
+            {id: 604, category: 'boklahong', name: 'បុកគ្រឿងសមុទ្រ (ធំ)', price: 25000, image: "Image/.png"},
+            {id: 605, category: 'boklahong', name: 'បុកប៉ាតេសមុទ្រ (ធំ)', price: 25000, image: "Image/boklahong-bate.png"},
+            {id: 606, category: 'boklahong', name: 'បុកប៉ាតេសមុទ្រ (តូច)', price: 18000, image: "Image/boklahong-bate.png"},
+            {id: 607, category: 'boklahong', name: 'បុកត្រីសាលម៉ុន', price: 20000, image: "Image/boklahong-salmon.png"},
+            {id: 608, category: 'boklahong', name: 'បុកសាច់គោសណ្តែកគួរ', price: 18000, image: "Image/bok.bean.png"},
+
+            //សាច់ក្លែម (food served with alcohol)
+             {id: 700, category: 'klem', name: 'ញ៉ុាំបង្គារ', price: 18000, image: "Image/nham-bnkea.png"},
+             {id: 701, category: 'klem', name: 'ត្រីសាលម៉ុនទឹកត្រីញៀន', price: 20000, image: "Image/salmon-nhean.png"},
+             {id: 702, category: 'klem', name: 'ភ្លាម្រះ', price: 20000, image: "Image/plea-maras.png"},
+             {id: 703, category: 'klem', name: 'ជ្រក់ជ់ងមាន់', price: 15000, image: "Image/jrok-mn.png"},
+             {id: 704, category: 'klem', name: 'ព្រុយត្រី', price: 18000, image: "Image/pruy-fish.png"},
+             {id: 705, category: 'klem', name: 'ឆាស្ពៃជូ', price: 18000, image: "Image/char-spiju.png"},
+             {id: 706, category: 'klem', name: 'ឆាខ្ញី', price: 18000, image: "Image/char-knhey.png"},
+             {id: 707, category: 'klem', name: 'ឆាក្តៅ', price: 18000, image: "Image/char-kdao2.png"},
+             {id: 708, category: 'klem', name: 'មាន់រំលីង', price: 18000, image: "Image/mn-ling.png"},
+             {id: 709, category: 'klem', name: 'ឡុកឡាក់សាច់គោ', price: 18000, image: "Image/loklak.png"},
+             {id: 710, category: 'klem', name: 'សាច់គោទឹកប្រហុក', price: 18000, image: "Image/sajkor-brohok.png"},
+             {id: 711, category: 'klem', name: 'ភ្លាសាច់គោ', price: 18000, image: "Image/plea.png"},
+             {id: 712, category: 'klem', name: 'ពោះគោទឹកប្រហុក', price: 18000, image: "Image/pokor-brohok.png"},
+             {id: 713, category: 'klem', name: 'មឹកទឹកភ្នែក', price: 18000, image: "Image/mek-tear.png"},
+             {id: 714, category: 'klem', name: 'បង្គារកោះកុង', price: 18000, image: "Image/bonkea-kohkong.png"},
+             {id: 715, category: 'klem', name: 'ផាកលូវ', price: 18000, image: "Image/paklov.png"},
+             {id: 716, category: 'klem', name: 'ស្លាបមាន់បំពង', price: 18000, image: "Image/slabmon.png"},
+             {id: 717, category: 'klem', name: 'ងាវឆាអំពិលទំ', price: 18000, image: "Image/ngeav-tamarin.png"},
+             {id: 718, category: 'klem', name: 'តាឡនតន', price: 18000, image: "Image/talonton.png"},
+             {id: 719, category: 'klem', name: 'ពោតលីង', price: 18000, image: "Image/potling.png"},
+             {id: 720, category: 'klem', name: 'ក្រួចបំពង', price: 18000, image: "Image/krouch.png"},
+             {id: 721, category: 'klem', name: 'ត្រីឆ្លូញ', price: 15000, image: "Image/chlonh.png"},
+             {id: 722, category: 'klem', name: 'ចង្រឺតបំពង', price: 15000, image: "Image/jongrit.png"},
+             {id: 723, category: 'klem', name: 'ងៀតគោ', price: 15000, image: "Image/ngeat-kor.png"},
+             {id: 724, category: 'klem', name: 'ស្វាយ', price: 15000, image: "Image/mango.png"},
+             {id: 725, category: 'klem', name: 'ប្រហិតបំពង', price: 15000, image: "Image/brahit.png"},           
+                       
+            
+        ];
+
+        // 30 Tables Configuration State
+        const TABLES = [];
+        for (let i = 1; i <= 30; i++) {
+            let type = 'standard';
+            if (i >= 17 && i <= 19) type = 'round';
+            if (i >= 20) type = 'back';
+            TABLES.push({id: i, number: i, type: type});
+        }
+
+        // Application Dynamic Data State
+        let selectedTableId = 1;
+        let selectedCategory = 'all';
+        let tableOrders = {}; 
+        let completedTransactions = [];
+        let selectedPaymentMethod = 'Cash';
+
+        // Chart Instances
+        let categoryChartInstance = null;
+        let hourlyChartInstance = null;
+
+        // Initialize App on DOM Load
+        window.addEventListener('DOMContentLoaded', () => {
+            loadLocalStorageData();
+            renderCategoryTabs();
+            renderTables();
+            renderMenuItems();
+            updateCartDisplay();
+            initCharts();
+            updateDashboardStats();
+        });
+
+        // Dark Mode Logic Persistence
+        function toggleDarkMode() {
+            const html = document.documentElement;
+            const isDark = html.classList.toggle('dark');
+            const icon = document.getElementById('dark-mode-icon');
+            if (isDark) {
+                icon.className = 'fa-solid fa-sun text-yellow-400 text-lg';
+                localStorage.setItem('sky_club_dark', 'true');
+            } else {
+                icon.className = 'fa-solid fa-moon text-slate-600 text-lg';
+                localStorage.setItem('sky_club_dark', 'false');
+            }
+        }
+
+        function loadLocalStorageData() {
+            if (localStorage.getItem('sky_club_dark') === 'true') {
+                document.documentElement.classList.add('dark');
+                document.getElementById('dark-mode-icon').className = 'fa-solid fa-sun text-yellow-400 text-lg';
+            }
+            const savedOrders = localStorage.getItem('sky_club_orders');
+            if (savedOrders) {
+                try {tableOrders = JSON.parse(savedOrders);} catch (e) { }
+            }
+            const savedTrans = localStorage.getItem('sky_club_transactions');
+            if (savedTrans) {
+                try {completedTransactions = JSON.parse(savedTrans);} catch (e) { }
+            }
+        }
+
+        function saveOrdersState() {
+            localStorage.setItem('sky_club_orders', JSON.stringify(tableOrders));
+        }
+
+        function saveTransactionsState() {
+            localStorage.setItem('sky_club_transactions', JSON.stringify(completedTransactions));
+        }
+
+        // Navigation Tab Switching
+        function switchTab(tab) {
+            const posView = document.getElementById('view-pos');
+            const dashView = document.getElementById('view-dashboard');
+            const posBtn = document.getElementById('nav-pos-btn');
+            const dashBtn = document.getElementById('nav-dashboard-btn');
+
+            if (tab === 'pos') {
+                posView.classList.remove('hidden');
+                posView.classList.add('flex');
+                dashView.classList.add('hidden');
+                dashView.classList.remove('flex');
+
+                posBtn.className = 'px-3 sm:px-4 py-2 rounded-lg text-sm sm:text-base font-semibold transition-all duration-200 flex items-center gap-2 bg-amber-600 text-white shadow-md shadow-amber-600/20';
+                dashBtn.className = 'px-3 sm:px-4 py-2 rounded-lg text-sm sm:text-base font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all duration-200 flex items-center gap-2';
+            } else {
+                posView.classList.add('hidden');
+                posView.classList.remove('flex');
+                dashView.classList.remove('hidden');
+                dashView.classList.add('flex');
+
+                dashBtn.className = 'px-3 sm:px-4 py-2 rounded-lg text-sm sm:text-base font-semibold transition-all duration-200 flex items-center gap-2 bg-amber-600 text-white shadow-md shadow-amber-600/20';
+                posBtn.className = 'px-3 sm:px-4 py-2 rounded-lg text-sm sm:text-base font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all duration-200 flex items-center gap-2';
+
+                updateDashboardStats();
+            }
+        }
+
+        // Mobile Drawer Toggles
+        function toggleMobileTables() {
+            const sidebar = document.getElementById('tables-sidebar');
+            sidebar.classList.toggle('-translate-x-full');
+        }
+
+        function toggleMobileCart() {
+            const sidebar = document.getElementById('cart-sidebar');
+            sidebar.classList.toggle('translate-x-full');
+        }
+
+        // Render Tables Function
+        function renderTables() {
+            const standardContainer = document.getElementById('grid-standard-tables');
+            const roundContainer = document.getElementById('grid-round-tables');
+            const backContainer = document.getElementById('grid-back-tables');
+
+            standardContainer.innerHTML = '';
+            roundContainer.innerHTML = '';
+            backContainer.innerHTML = '';
+
+            TABLES.forEach(table => {
+                const order = tableOrders[table.id] || [];
+                const hasOrder = order.length > 0;
+                const totalAmount = order.reduce((sum, item) => sum + (item.price * item.qty), 0);
+
+                const isSelected = table.id === selectedTableId;
+
+                const tableBtn = document.createElement('button');
+                tableBtn.onclick = () => selectTable(table.id);
+
+                let bgClasses = 'bg-slate-50 dark:bg-slate-700 border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-200 hover:border-green-500';
+                if (hasOrder) {
+                    bgClasses = 'bg-amber-50 dark:bg-amber-950/40 border-amber-300 dark:border-amber-700 text-amber-900 dark:text-amber-200';
+                }
+                if (isSelected) {
+                    bgClasses = 'bg-amber-600 text-white border-amber-600 shadow-md shadow-amber-600/30 font-bold';
+                }
+
+                tableBtn.className = `p-2.5 rounded-xl border transition-all text-left flex flex-col justify-between relative ${bgClasses}`;
+                tableBtn.setAttribute('data-table-id', table.id);
+
+                tableBtn.innerHTML = `
+                    <div class="flex justify-between items-center w-full">
+                        <span class="text-xs font-bold">តុលេខ ${table.number}</span>
+                        <span class="w-2 h-2 rounded-full ${hasOrder ? 'bg-amber-500 animate-pulse' : 'bg-slate-300 dark:bg-slate-500'}"></span>
+                    </div>
+                    <div class="mt-1 text-[10px] opacity-80 flex justify-between items-end w-full">
+                        <span>${hasOrder ? 'មានភ្ញៀវ' : 'ទំនេរ'}</span>
+                        <span class="font-semibold">${hasOrder ? '₩' + totalAmount.toLocaleString() : ''}</span>
+                    </div>
+                `;
+
+                if (table.type === 'standard') standardContainer.appendChild(tableBtn);
+                else if (table.type === 'round') roundContainer.appendChild(tableBtn);
+                else if (table.type === 'back') backContainer.appendChild(tableBtn);
+            });
+        }
+
+        function filterTables() {
+            const term = document.getElementById('table-search-input').value.toLowerCase();
+            const tableButtons = document.querySelectorAll('#tables-container button[data-table-id]');
+            tableButtons.forEach(btn => {
+                const text = btn.innerText.toLowerCase();
+                if (text.includes(term)) btn.style.display = 'flex';
+                else btn.style.display = 'none';
+            });
+        }
+
+        function selectTable(tableId) {
+            selectedTableId = tableId;
+            renderTables();
+            updateCartDisplay();
+            document.getElementById('active-table-badge').innerText = `តុលេខ ${tableId}`;
+        }
+
+        // Render Menu Category Filter Tabs
+        function renderCategoryTabs() {
+            const container = document.getElementById('category-tabs');
+            container.innerHTML = '';
+
+            CATEGORIES.forEach(cat => {
+                const btn = document.createElement('button');
+                btn.onclick = () => filterCategory(cat.id);
+                const isActive = cat.id === selectedCategory;
+
+                btn.className = `px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${isActive
+                        ? 'bg-amber-600 text-white shadow-md shadow-amber-600/20'
+                        : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600'
+                    }`;
+                btn.innerText = cat.name;
+                container.appendChild(btn);
+            });
+        }
+
+        function filterCategory(catId) {
+            selectedCategory = catId;
+            renderCategoryTabs();
+            renderMenuItems();
+        }
+
+        // Render Menu Items Grid
+        function renderMenuItems() {
+            const grid = document.getElementById('menu-items-grid');
+            grid.innerHTML = '';
+
+            const searchTerm = document.getElementById('menu-search-input').value.toLowerCase();
+
+            const filtered = MENU_ITEMS.filter(item => {
+                const matchesCat = selectedCategory === 'all' || item.category === selectedCategory;
+                const matchesSearch = item.name.toLowerCase().includes(searchTerm);
+                return matchesCat && matchesSearch;
+            });
+
+            filtered.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'bg-slate-50 dark:bg-slate-700/50 hover:bg-green-50 dark:hover:bg-green-900/20 border border-slate-200 dark:border-slate-700 rounded-xl flex flex-col justify-between cursor-pointer transition-all hover:scale-[1.02] hover:shadow-md active:scale-95 group';
+                card.onclick = () => addItemToOrder(item);
+
+                const mediaHTML = item.image 
+                    ? `<img src="${item.image}" alt="${item.name}" class="w-100% h-100% object-cover rounded-xl border border-slate-200 dark:border-slate-600">`
+                    : `<div class="w-8 h-8 rounded-xl bg-green-100 dark:bg-green-900/50 text-amber-600 dark:text-green-300 flex items-center justify-center text-sm group-hover:bg-amber-600 group-hover:text-white transition-colors">
+                           <i class="fa-solid ${item.icon || 'fa-utensils'}"></i>
+                       </div>`;
+
+                card.innerHTML = `
+                    <div class="flex items-center justify-between mb-2">
+                        ${mediaHTML}
+                        
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-xs text-slate-800 dark:text-slate-100 line-clamp-2 leading-tight">${item.name}</h4>
+                        <p class="text-sm font-black text-amber-600 dark:text-green-400 mt-1">₩${item.price.toLocaleString()}</p>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function filterMenu() {
+            renderMenuItems();
+        }
+
+        // Cart Logic Functions
+        function addItemToOrder(item) {
+            if (!tableOrders[selectedTableId]) {
+                tableOrders[selectedTableId] = [];
+            }
+
+            const currentList = tableOrders[selectedTableId];
+            const existing = currentList.find(i => i.id === item.id);
+
+            if (existing) {
+                existing.qty += 1;
+            } else {
+                currentList.push({
+                    id: item.id,
+                    name: item.name,
+                    price: item.price,
+                    qty: 1
+                });
+            }
+
+            saveOrdersState();
+            updateCartDisplay();
+            renderTables();
+        }
+
+        function updateCartQuantity(itemId, change) {
+            const currentList = tableOrders[selectedTableId] || [];
+            const existing = currentList.find(i => i.id === itemId);
+
+            if (existing) {
+                existing.qty += change;
+                if (existing.qty <= 0) {
+                    tableOrders[selectedTableId] = currentList.filter(i => i.id !== itemId);
+                }
+            }
+
+            saveOrdersState();
+            updateCartDisplay();
+            renderTables();
+        }
+
+        function removeItemFromOrder(itemId) {
+            if (tableOrders[selectedTableId]) {
+                tableOrders[selectedTableId] = tableOrders[selectedTableId].filter(i => i.id !== itemId);
+            }
+            saveOrdersState();
+            updateCartDisplay();
+            renderTables();
+        }
+
+        function clearCurrentTableOrder() {
+            if (!tableOrders[selectedTableId] || tableOrders[selectedTableId].length === 0) return;
+            tableOrders[selectedTableId] = [];
+            saveOrdersState();
+            updateCartDisplay();
+            renderTables();
+        }
+
+        function updateCartDisplay() {
+            const container = document.getElementById('cart-items-container');
+            const currentList = tableOrders[selectedTableId] || [];
+
+            document.getElementById('cart-title').innerText = `បញ្ជីកុម្ម៉ង់ - តុលេខ ${selectedTableId}`;
+
+            container.innerHTML = '';
+
+            let totalItems = 0;
+            let subtotal = 0;
+
+            if (currentList.length === 0) {
+                container.innerHTML = `
+                    <div class="h-full flex flex-col items-center justify-center text-slate-400 py-10">
+                        <i class="fa-solid fa-utensils text-3xl mb-2 opacity-40"></i>
+                        <p class="text-xs">មិនទាន់មានមុខម្ហូបនៅឡើយ</p>
+                    </div>
+                `;
+            } else {
+                currentList.forEach(item => {
+                    const itemTotal = item.price * item.qty;
+                    totalItems += item.qty;
+                    subtotal += itemTotal;
+
+                    const row = document.createElement('div');
+                    row.className = 'bg-slate-50 dark:bg-slate-700/40 p-2.5 rounded-xl flex items-center justify-between gap-2 border border-slate-200 dark:border-slate-700';
+
+                    row.innerHTML = `
+                        <div class="min-w-0 flex-1">
+                            <h5 class="text-xs font-bold text-slate-800 dark:text-slate-100 truncate">${item.name}</h5>
+                            <p class="text-[11px] text-amber-600 dark:text-green-400 font-semibold">₩${item.price.toLocaleString()}</p>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <button onclick="updateCartQuantity(${item.id}, -1)" class="w-6 h-6 rounded-lg bg-slate-200 dark:bg-slate-600 text-slate-700 dark:text-slate-200 flex items-center justify-center text-xs hover:bg-slate-300 font-bold">-</button>
+                            <span class="text-xs font-bold w-5 text-center">${item.qty}</span>
+                            <button onclick="updateCartQuantity(${item.id}, 1)" class="w-6 h-6 rounded-lg bg-amber-600 text-white flex items-center justify-center text-xs hover:bg-green-700 font-bold">+</button>
+                            <button onclick="removeItemFromOrder(${item.id})" class="ml-1 text-slate-400 hover:text-red-500 text-xs">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        </div>
+                    `;
+                    container.appendChild(row);
+                });
+            }
+
+            // ដកការគណនាពន្ធចេញ
+            const grandTotal = subtotal;
+
+            document.getElementById('cart-total-items-count').innerText = `${totalItems} មុខ`;
+            document.getElementById('cart-subtotal').innerText = `₩${subtotal.toLocaleString()}`;
+            document.getElementById('cart-grand-total').innerText = `₩${grandTotal.toLocaleString()}`;
+
+            const mobileBadge = document.getElementById('mobile-cart-badge');
+            if (totalItems > 0) {
+                mobileBadge.innerText = totalItems;
+                mobileBadge.classList.remove('hidden');
+            } else {
+                mobileBadge.classList.add('hidden');
+            }
+        }
+
+        // Checkout Modal & Payment Execution
+        function openCheckoutModal() {
+            const currentList = tableOrders[selectedTableId] || [];
+            if (currentList.length === 0) {
+                alert('សូមជ្រើសរើសមុខម្ហូបជាមុនសិន!');
+                return;
+            }
+
+            const subtotal = currentList.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            const total = subtotal; // មិនគណនាពន្ធ
+
+            document.getElementById('modal-checkout-amount').innerText = `₩${total.toLocaleString()}`;
+            document.getElementById('received-amount-input').value = total;
+            calculateChange();
+
+            selectPaymentMethod('Cash');
+            document.getElementById('checkout-modal').classList.remove('hidden');
+        }
+
+        function closeCheckoutModal() {
+            document.getElementById('checkout-modal').classList.add('hidden');
+        }
+
+        function selectPaymentMethod(method) {
+            selectedPaymentMethod = method;
+            const buttons = document.querySelectorAll('.pay-method-btn');
+            buttons.forEach(btn => {
+                btn.className = 'pay-method-btn p-3 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-xs font-bold flex flex-col items-center gap-1 hover:border-green-500';
+            });
+
+            if (method === 'Cash') {
+                document.getElementById('pay-method-cash').className = 'pay-method-btn p-3 rounded-xl border-2 border-amber-600 bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-xs font-bold flex flex-col items-center gap-1';
+            } else if (method === 'Card') {
+                document.getElementById('pay-method-card').className = 'pay-method-btn p-3 rounded-xl border-2 border-amber-600 bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-xs font-bold flex flex-col items-center gap-1';
+            } else if (method === 'Mobile Pay') {
+                document.getElementById('pay-method-mobile').className = 'pay-method-btn p-3 rounded-xl border-2 border-amber-600 bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-xs font-bold flex flex-col items-center gap-1';
+            }
+        }
+
+        function calculateChange() {
+            const currentList = tableOrders[selectedTableId] || [];
+            const subtotal = currentList.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            const total = subtotal;
+
+            const received = parseFloat(document.getElementById('received-amount-input').value) || 0;
+            const change = received - total;
+
+            const changeDisplay = document.getElementById('change-amount-display');
+            if (change < 0) {
+                changeDisplay.innerText = 'ប្រាក់មិនគ្រប់គ្រាន់';
+                changeDisplay.className = 'text-base font-bold text-red-500';
+            } else {
+                changeDisplay.innerText = `₩${change.toLocaleString()}`;
+                changeDisplay.className = 'text-base font-bold text-amber-600 dark:text-green-400';
+            }
+        }
+
+        function processPayment() {
+            const currentList = tableOrders[selectedTableId] || [];
+            if (currentList.length === 0) return;
+
+            const subtotal = currentList.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            const total = subtotal;
+            const received = parseFloat(document.getElementById('received-amount-input').value) || 0;
+
+            if (received < total && selectedPaymentMethod === 'Cash') {
+                alert('ប្រាក់ទទួលបានមិនគ្រប់គ្រាន់!');
+                return;
+            }
+
+            const transaction = {
+                id: 'INV-' + Math.floor(100000 + Math.random() * 900000),
+                tableId: selectedTableId,
+                date: new Date().toLocaleString('km-KH'),
+                timestamp: new Date().toISOString(),
+                hour: new Date().getHours(),
+                items: [...currentList],
+                subtotal: subtotal,
+                tax: 0,
+                totalAmount: total,
+                paymentMethod: selectedPaymentMethod
+            };
+
+            completedTransactions.unshift(transaction);
+            saveTransactionsState();
+
+            tableOrders[selectedTableId] = [];
+            saveOrdersState();
+
+            closeCheckoutModal();
+            renderTables();
+            updateCartDisplay();
+            updateDashboardStats();
+
+            alert('ការទូទាត់ប្រាក់ទទួលបានជោគជ័យ!');
+        }
+
+         // អនុគមន៍សម្រាប់ភ្ជាប់ Bluetooth Receipt Printer ផ្ទាល់
+async function connectBluetoothPrinter() {
+    try {
+        const device = await navigator.bluetooth.requestDevice({
+            filters: [{ services: ['000018f0-0000-1000-8000-00805f9b34fb'] }], // Standard ESC/POS UUID
+            optionalServices: ['000018f0-0000-1000-8000-00805f9b34fb']
+        });
+        const server = await device.gatt.connect();
+        alert("ភ្ជាប់ម៉ាស៊ីនព្រីនបានជោគជ័យ: " + device.name);
+    } catch (error) {
+        console.error("ការភ្ជាប់បរាជ័យ:", error);
+    }
+}
+
+        // Receipt Preview & Printing Logic
+        function openPrintModal() {
+            const currentList = tableOrders[selectedTableId] || [];
+            if (currentList.length === 0) {
+                alert('គ្មានមុខម្ហូបក្នុងតុនេះទេ!');
+                return;
+            }
+
+            const subtotal = currentList.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            const grandTotal = subtotal;
+
+            document.getElementById('receipt-id').innerText = '#INV-PREVIEW';
+            document.getElementById('receipt-table-no').innerText = `តុលេខ ${selectedTableId}`;
+            document.getElementById('receipt-date').innerText = new Date().toLocaleString('km-KH');
+
+            const itemsContainer = document.getElementById('receipt-items-list');
+            itemsContainer.innerHTML = '';
+
+            currentList.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'flex justify-between items-center text-xs';
+                div.innerHTML = `
+                    <span>${item.name} x${item.qty}</span>
+                    <span class="font-bold">₩${(item.price * item.qty).toLocaleString()}</span>
+                `;
+                itemsContainer.appendChild(div);
+            });
+
+            document.getElementById('receipt-subtotal').innerText = `₩${subtotal.toLocaleString()}`;
+            document.getElementById('receipt-grand-total').innerText = `₩${grandTotal.toLocaleString()}`;
+            document.getElementById('print-modal').classList.remove('hidden');
+        }
+
+        function closePrintModal() {
+            document.getElementById('print-modal').classList.add('hidden');
+        }
+
+        function triggerReceiptPrint() {
+            const printableArea = document.getElementById('receipt-printable-area').innerHTML;
+            const printPaper = document.getElementById('print-paper');
+            printPaper.innerHTML = printableArea;
+            window.print();
+        }
+
+        // Dashboard Stats and Analytics Chart Render
+        function updateDashboardStats() {
+            const totalRev = completedTransactions.reduce((sum, t) => sum + t.totalAmount, 0);
+            const totalTrans = completedTransactions.length;
+
+            document.getElementById('dash-total-revenue').innerText = `₩${totalRev.toLocaleString()}`;
+            document.getElementById('dash-total-transactions').innerText = totalTrans.toLocaleString();
+
+            renderRecentTransactionsTable();
+            updateChartsData();
+        }
+
+        function renderRecentTransactionsTable() {
+            const tbody = document.getElementById('recent-transactions-tbody');
+            tbody.innerHTML = '';
+
+            if (completedTransactions.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="p-4 text-center text-slate-400">គ្មានប្រវត្តិប្រតិបត្តិការនៅឡើយទេ</td>
+                    </tr>
+                `;
+                return;
+            }
+
+            completedTransactions.slice(0, 10).forEach(trans => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors';
+                tr.innerHTML = `
+                    <td class="p-3 font-bold text-amber-600 dark:text-green-400">${trans.id}</td>
+                    <td class="p-3">តុលេខ ${trans.tableId}</td>
+                    <td class="p-3 text-xs text-slate-500 dark:text-slate-400">${trans.date}</td>
+                    <td class="p-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-600">${trans.paymentMethod}</span></td>
+                    <td class="p-3 font-bold">₩${trans.totalAmount.toLocaleString()}</td>
+                    <td class="p-3 text-right">
+                        <button onclick="reprintTransactionReceipt('${trans.id}')" class="text-amber-600 hover:text-green-700 text-xs font-bold">
+                            <i class="fa-solid fa-print"></i> បោះពុម្ព
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function reprintTransactionReceipt(transId) {
+            const trans = completedTransactions.find(t => t.id === transId);
+            if (!trans) return;
+
+            document.getElementById('receipt-id').innerText = trans.id;
+            document.getElementById('receipt-table-no').innerText = `តុលេខ ${trans.tableId}`;
+            document.getElementById('receipt-date').innerText = trans.date;
+
+            const itemsContainer = document.getElementById('receipt-items-list');
+            itemsContainer.innerHTML = '';
+
+            trans.items.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'flex justify-between items-center text-xs';
+                div.innerHTML = `
+                    <span>${item.name} x${item.qty}</span>
+                    <span class="font-bold">₩${(item.price * item.qty).toLocaleString()}</span>
+                `;
+                itemsContainer.appendChild(div);
+            });
+
+            document.getElementById('receipt-grand-total').innerText = `₩${trans.totalAmount.toLocaleString()}`;
+            document.getElementById('print-modal').classList.remove('hidden');
+        }
+
+        function confirmResetSalesData() {
+            if (confirm('តើអ្នកប្រាកដជាចង់លុបចោលទិន្នន័យលក់ទាំងអស់មែនទេ?')) {
+                completedTransactions = [];
+                saveTransactionsState();
+                updateDashboardStats();
+                alert('ទិន្នន័យត្រូវបានលុបដោយជោគជ័យ');
+            }
+        }
+
+        function exportSalesPDF() {
+            const totalRev = completedTransactions.reduce((sum, t) => sum + t.totalAmount, 0);
+            const totalTrans = completedTransactions.length;
+
+            let reportHTML = `
+                <div class="p-6 font-khmer space-y-4">
+                    <div class="text-center border-b pb-4">
+                        <h1 class="text-2xl font-bold text-green-700">របាយការណ៍លក់ Sky Club POS</h1>
+                        <p class="text-xs text-slate-500">កាលបរិច្ឆេទបង្កើត: ${new Date().toLocaleString('km-KH')}</p>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4 my-4">
+                        <div class="p-3 border rounded-xl">
+                            <span class="text-xs text-slate-500">ចំណូលសរុប</span>
+                            <h2 class="text-xl font-bold text-amber-600">₩${totalRev.toLocaleString()}</h2>
+                        </div>
+                        <div class="p-3 border rounded-xl">
+                            <span class="text-xs text-slate-500">ចំនួនការទូទាត់សរុប</span>
+                            <h2 class="text-xl font-bold"><sup>${totalTrans}</sup> ប្រតិបត្តិការ</h2>
+                        </div>
+                    </div>
+                    <h3 class="font-bold text-sm">បញ្ជីប្រវត្តិប្រតិបត្តិការ:</h3>
+                    <table class="w-full text-xs border-collapse border border-slate-300">
+                        <thead>
+                            <tr class="bg-slate-100">
+                                <th class="border p-2">កូដវិក្កយបត្រ</th>
+                                <th class="border p-2">តុ</th>
+                                <th class="border p-2">កាលបរិច្ឆេទ</th>
+                                <th class="border p-2">វិធីបង់ប្រាក់</th>
+                                <th class="border p-2">ចំនួនប្រាក់</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+
+            completedTransactions.forEach(t => {
+                reportHTML += `
+                    <tr>
+                        <td class="border p-2">${t.id}</td>
+                        <td class="border p-2">តុ ${t.tableId}</td>
+                        <td class="border p-2">${t.date}</td>
+                        <td class="border p-2">${t.paymentMethod}</td>
+                        <td class="border p-2 font-bold">₩${t.totalAmount.toLocaleString()}</td>
+                    </tr>
+                `;
+            });
+
+            reportHTML += `
+                        </tbody>
+                    </table>
+                </div>
+            `;
+
+            const printPaper = document.getElementById('print-paper');
+            printPaper.innerHTML = reportHTML;
+            window.print();
+        }
+
+        // Charts Initialization
+        function initCharts() {
+            const catCtx = document.getElementById('categorySalesChart').getContext('2d');
+            const hourCtx = document.getElementById('hourlySalesChart').getContext('2d');
+
+            categoryChartInstance = new Chart(catCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['បាយឆា', 'ភេសជ្ជៈ', 'ស្រាបៀរ', 'សម្លរ', 'អាហារសម្រន់'],
+                    datasets: [{
+                        data: [0, 0, 0, 0, 0],
+                        backgroundColor: ['#22c55e', '#3b82f6', '#f59e0b', '#ec4899', '#8b5cf6']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {legend: {position: 'bottom'}}
+                }
+            });
+
+            hourlyChartInstance = new Chart(hourCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['10:00', '12:00', '14:00', '16:00', '18:00', '20:00', '22:00'],
+                    datasets: [{
+                        label: 'ចំណូល (₩)',
+                        data: [0, 0, 0, 0, 0, 0, 0],
+                        backgroundColor: '#16a34a'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {legend: {display: false}}
+                }
+            });
+        }
+
+        function updateChartsData() {
+            if (!categoryChartInstance || !hourlyChartInstance) return;
+
+            const catSums = {'fried_rice': 0, 'beverages': 0, 'beer': 0, 'soup': 0, 'snack': 0};
+
+            completedTransactions.forEach(trans => {
+                trans.items.forEach(item => {
+                    const foundItem = MENU_ITEMS.find(m => m.id === item.id);
+                    if (foundItem && catSums[foundItem.category] !== undefined) {
+                        catSums[foundItem.category] += (item.price * item.qty);
+                    }
+                });
+            });
+
+            categoryChartInstance.data.datasets[0].data = [
+                catSums['fried_rice'],
+                catSums['beverages'],
+                catSums['beer'],
+                catSums['soup'],
+                catSums['snack']
+            ];
+            categoryChartInstance.update();
+
+            const hourlySums = [0, 0, 0, 0, 0, 0, 0];
+            completedTransactions.forEach(trans => {
+                const hour = trans.hour || 12;
+                if (hour <= 11) hourlySums[0] += trans.totalAmount;
+                else if (hour <= 13) hourlySums[1] += trans.totalAmount;
+                else if (hour <= 15) hourlySums[2] += trans.totalAmount;
+                else if (hour <= 17) hourlySums[3] += trans.totalAmount;
+                else if (hour <= 19) hourlySums[4] += trans.totalAmount;
+                else if (hour <= 21) hourlySums[5] += trans.totalAmount;
+                else hourlySums[6] += trans.totalAmount;
+            });
+
+            hourlyChartInstance.data.datasets[0].data = hourlySums;
+            hourlyChartInstance.update();
+        }
+    </script>
+</body>
+
+</html>
