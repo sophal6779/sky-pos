@@ -280,7 +280,6 @@
                             <span>តម្លៃសរុប (Total):</span>
                             <span id="cart-subtotal" class="font-semibold text-slate-800 dark:text-slate-200">₩0</span>
                         </div>
-                        <!-- ពន្ធ ១០% ត្រូវបានលុបចេញពីការគណនា -->
                         <div
                             class="flex justify-between text-base font-bold text-slate-900 dark:text-white pt-1.5 border-t border-dashed border-slate-200 dark:border-slate-700">
                             <span>សរុបរួម (Grand Total):</span>
@@ -288,17 +287,22 @@
                         </div>
                     </div>
 
-                    <!-- Actions (All Primary Buttons styled GREEN) -->
-                    <div class="grid grid-cols-2 gap-2">
+                    <!-- Actions (Reset, Kitchen Print, Print Bill) -->
+                    <div class="grid grid-cols-3 gap-1.5">
                         <button onclick="clearCurrentTableOrder()"
-                            class="px-3 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors">
+                            class="px-2 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 rounded-xl text-[11px] font-semibold flex items-center justify-center gap-1 transition-colors">
                             <i class="fa-solid fa-trash-can"></i>
-                            <span>លុបទាំងអស់</span>
+                            <span>លុប</span>
+                        </button>
+                        <button onclick="openKitchenModal()"
+                            class="px-2 py-2 bg-blue-100 hover:bg-blue-200 dark:bg-blue-900/40 dark:hover:bg-blue-900/60 text-blue-700 dark:text-blue-300 rounded-xl text-[11px] font-semibold flex items-center justify-center gap-1 transition-colors">
+                            <i class="fa-solid fa-utensils"></i>
+                            <span>ទៅចុងភៅ</span>
                         </button>
                         <button onclick="openPrintModal()"
-                            class="px-3 py-2 bg-green-100 hover:bg-green-200 dark:bg-green-900/40 dark:hover:bg-green-900/60 text-green-700 dark:text-green-300 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors">
+                            class="px-2 py-2 bg-green-100 hover:bg-green-200 dark:bg-green-900/40 dark:hover:bg-green-900/60 text-green-700 dark:text-green-300 rounded-xl text-[11px] font-semibold flex items-center justify-center gap-1 transition-colors">
                             <i class="fa-solid fa-print"></i>
-                            <span>បោះពុម្ពវិក្កយបត្រ</span>
+                            <span>វិក្កយបត្រ</span>
                         </button>
                     </div>
                     <button onclick="openCheckoutModal()"
@@ -497,6 +501,69 @@
         </div>
     </div>
 
+    <!-- KITCHEN ORDER PREVIEW MODAL -->
+    <div id="kitchen-modal"
+        class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 hidden no-print">
+        <div
+            class="bg-white dark:bg-slate-800 rounded-2xl max-w-sm w-full p-5 shadow-2xl border border-slate-200 dark:border-slate-700 flex flex-col max-h-[90vh]">
+            <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-700 pb-2 mb-3">
+                <h3 class="text-base font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                    <i class="fa-solid fa-utensils text-blue-600"></i>
+                    <span>សំបុត្រផ្ញើទៅចុងភៅ (Kitchen Ticket)</span>
+                </h3>
+                <button onclick="closeKitchenModal()" class="text-slate-400 hover:text-slate-600">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Kitchen Ticket Content Area -->
+            <div id="kitchen-printable-area"
+                class="overflow-y-auto bg-slate-50 dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 font-mono text-xs space-y-3">
+                <div class="text-center space-y-1">
+                    <h2 class="text-lg font-black font-khmer uppercase text-blue-700 dark:text-blue-400">
+                        *** សំបុត្រចុងភៅ ***</h2>
+                    <div class="border-b-2 border-slate-800 dark:border-slate-200 my-2"></div>
+                </div>
+
+                <div class="space-y-0.5 text-xs font-khmer">
+                    <div class="flex justify-between font-bold text-sm">
+                        <span>តុអាហារ:</span>
+                        <span id="kitchen-table-no" class="text-blue-600">តុលេខ ១</span>
+                    </div>
+                    <div class="flex justify-between text-[11px] text-slate-500">
+                        <span>កាលបរិច្ឆេទ:</span>
+                        <span id="kitchen-date">00/00/0000 00:00</span>
+                    </div>
+                </div>
+
+                <div class="border-b border-dashed border-slate-400 my-2"></div>
+
+                <div class="font-bold text-xs text-slate-600 dark:text-slate-300 mb-1">បញ្ជីមុខម្ហូបកុម្ម៉ង់ថ្មី:</div>
+                <!-- Kitchen Items List -->
+                <div id="kitchen-items-list" class="space-y-2 font-khmer">
+                    <!-- Dynamic Items -->
+                </div>
+
+                <div class="border-b-2 border-slate-800 dark:border-slate-200 my-2"></div>
+                <div class="text-center text-[10px] text-slate-500 font-khmer">
+                    <p>សូមរៀបចំមុខម្ហូបតាមការស្នើសុំ!</p>
+                </div>
+            </div>
+
+            <div class="pt-3 flex gap-2">
+                <button onclick="closeKitchenModal()"
+                    class="flex-1 py-2 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl font-bold text-xs">
+                    បិទ
+                </button>
+                <button onclick="triggerKitchenPrint()"
+                    class="flex-1 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-xs shadow-md shadow-blue-600/30 flex items-center justify-center gap-1.5">
+                    <i class="fa-solid fa-print"></i>
+                    <span>ព្រីនទៅចុងភៅ</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- PRINT RECEIPT PREVIEW MODAL -->
     <div id="print-modal"
         class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 hidden no-print">
@@ -545,7 +612,6 @@
                         <span>តម្លៃសរុប (Total):</span>
                         <span id="receipt-subtotal">₩0</span>
                     </div>
-                    <!-- ពន្ធត្រូវបានលុបចេញពីវិក្កយបត្រ -->
                     <div
                         class="flex justify-between font-bold text-sm pt-1 border-t border-dashed border-slate-300 dark:border-slate-700">
                         <span>សរុបរួម (Grand Total):</span>
@@ -594,6 +660,7 @@
             {id: 'klem', name: 'ម្ហូបឆា សាច់ក្លែម'},
             {id: 'beverages', name: 'ភេសជ្ជៈ'},
             {id: 'beer', name: 'ស្រាបៀរ'},
+            {id: 'steak', name: 'មីដុត'},
         ];
 
         // 70 Distinct Menu Items with Korean Won Prices (₩)
@@ -613,7 +680,7 @@
             {id: 111, category: 'fried_rice', name: 'ថែម បន្លែ', price: 8000, image: "Image/vegetable.png"},
             {id: 112, category: 'fried_rice', name: 'ថែមសាច់', price: 10000, image: "Image/saj.png"},
             {id: 113, category: 'fried_rice', name: 'ថែមមី', price: 2000, image: "Image/mi1.png"},
-            {id: 114, category: 'fried_rice', name: 'បាយឆាសាហ្វ្រនពិសេស', price: 15000, icon: 'fa-crown'},
+            {id: 114, category: 'fried_rice', name: 'បារី', price: 5000, icon: 'fa-crown'},
 
             // ភេសជ្ជៈ (Beverages) - 15 items
             {id: 200, category: 'beverages', name: 'កាហ្វេដូងក្រអូប', price: 5000, image: "Image/te7.png"},
@@ -718,9 +785,19 @@
              {id: 722, category: 'klem', name: 'ចង្រឺតបំពង', price: 15000, image: "Image/jongrit.png"},
              {id: 723, category: 'klem', name: 'ងៀតគោ', price: 15000, image: "Image/ngeat-kor.png"},
              {id: 724, category: 'klem', name: 'ស្វាយ', price: 15000, image: "Image/mango.png"},
-             {id: 725, category: 'klem', name: 'ប្រហិតបំពង', price: 15000, image: "Image/brahit.png"},           
-                       
-            
+             {id: 725, category: 'klem', name: 'ប្រហិតបំពង', price: 15000, image: "Image/brahit.png"},    
+             {id: 726, category: 'klem', name: 'ឆាគ្រឿង', price: 18000, image: "bay/sddefault.jpg"},    
+
+            //មីដុត (មីដុតស្តេក)
+             {id: 800, category: 'steak', name: 'មីដុត ស្តេក', price: 15000, image: "mi-dot/mi-steck.jpg"},  
+             {id: 801, category: 'steak', name: 'មីដុតស្តេក ពិសេស', price: 18000, image: "mi-dot/mi-steck.jpg"},  
+             {id: 802, category: 'steak', name: 'មីដុតស្តេក សាច់មាន់', price: 15000, image: "mi-dot/mi-steck.jpg"},  
+             {id: 803, category: 'steak', name: 'មីដុត គ្រឿងសមុទ្រ', price: 15000, image: "mi-dot/mi-steck.jpg"},  
+             {id: 804, category: 'steak', name: 'មីបួស', price: 12000, image: "mi-dot/mi-steck.jpg"},  
+             {id: 805, category: 'steak', name: 'នំបុ័ងខ្ទះឆា', price: 15000, image: "mi-dot/mi-steck.jpg"},  
+             {id: 806, category: 'steak', name: 'បាយបួស', price: 12000, image: "mi-dot/mi-steck.jpg"},  
+             {id: 807, category: 'steak', name: 'បាយដុតស្តេក', price: 15000, image: "mi-dot/mi-steck.jpg"},  
+             {id: 808, category: 'steak', name: 'បាយដុតស្តេក សាច់មាន់', price: 15000, image: "mi-dot/mi-steck.jpg"},  
         ];
 
         // 30 Tables Configuration State
@@ -775,7 +852,14 @@
             }
             const savedOrders = localStorage.getItem('sky_club_orders');
             if (savedOrders) {
-                try {tableOrders = JSON.parse(savedOrders);} catch (e) { }
+                try {
+                    tableOrders = JSON.parse(savedOrders);
+                    Object.keys(tableOrders).forEach(tId => {
+                        tableOrders[tId].forEach(item => {
+                            if (item.sentQty === undefined) item.sentQty = 0;
+                        });
+                    });
+                } catch (e) { }
             }
             const savedTrans = localStorage.getItem('sky_club_transactions');
             if (savedTrans) {
@@ -947,7 +1031,6 @@
                 card.innerHTML = `
                     <div class="flex items-center justify-between mb-2">
                         ${mediaHTML}
-                        
                     </div>
                     <div>
                         <h4 class="font-bold text-xs text-slate-800 dark:text-slate-100 line-clamp-2 leading-tight">${item.name}</h4>
@@ -978,7 +1061,8 @@
                     id: item.id,
                     name: item.name,
                     price: item.price,
-                    qty: 1
+                    qty: 1,
+                    sentQty: 0
                 });
             }
 
@@ -995,6 +1079,8 @@
                 existing.qty += change;
                 if (existing.qty <= 0) {
                     tableOrders[selectedTableId] = currentList.filter(i => i.id !== itemId);
+                } else if (existing.sentQty > existing.qty) {
+                    existing.sentQty = existing.qty;
                 }
             }
 
@@ -1044,12 +1130,17 @@
                     totalItems += item.qty;
                     subtotal += itemTotal;
 
+                    const unsentQty = item.qty - (item.sentQty || 0);
+
                     const row = document.createElement('div');
                     row.className = 'bg-slate-50 dark:bg-slate-700/40 p-2.5 rounded-xl flex items-center justify-between gap-2 border border-slate-200 dark:border-slate-700';
 
                     row.innerHTML = `
                         <div class="min-w-0 flex-1">
-                            <h5 class="text-xs font-bold text-slate-800 dark:text-slate-100 truncate">${item.name}</h5>
+                            <div class="flex items-center gap-1.5">
+                                <h5 class="text-xs font-bold text-slate-800 dark:text-slate-100 truncate">${item.name}</h5>
+                                ${unsentQty > 0 ? `<span class="bg-amber-500 text-white text-[9px] px-1 rounded font-bold">ថ្មី x${unsentQty}</span>` : `<span class="bg-green-600 text-white text-[9px] px-1 rounded font-bold">ផ្ញើរួច</span>`}
+                            </div>
                             <p class="text-[11px] text-amber-600 dark:text-green-400 font-semibold">₩${item.price.toLocaleString()}</p>
                         </div>
                         <div class="flex items-center gap-1.5">
@@ -1065,7 +1156,6 @@
                 });
             }
 
-            // ដកការគណនាពន្ធចេញ
             const grandTotal = subtotal;
 
             document.getElementById('cart-total-items-count').innerText = `${totalItems} មុខ`;
@@ -1081,6 +1171,73 @@
             }
         }
 
+        // KITCHEN TICKET FUNCTIONS
+        function getUnsentKitchenItems() {
+            const currentList = tableOrders[selectedTableId] || [];
+            const unsent = [];
+
+            currentList.forEach(item => {
+                const diff = item.qty - (item.sentQty || 0);
+                if (diff > 0) {
+                    unsent.push({
+                        ...item,
+                        newQty: diff
+                    });
+                }
+            });
+            return unsent;
+        }
+
+        function openKitchenModal() {
+            const unsentItems = getUnsentKitchenItems();
+            if (unsentItems.length === 0) {
+                alert('គ្មានមុខម្ហូបថ្មីដែលត្រូវផ្ញើទៅចុងភៅទេ!');
+                return;
+            }
+
+            document.getElementById('kitchen-table-no').innerText = `តុលេខ ${selectedTableId}`;
+            document.getElementById('kitchen-date').innerText = new Date().toLocaleString('km-KH');
+
+            const itemsContainer = document.getElementById('kitchen-items-list');
+            itemsContainer.innerHTML = '';
+
+            unsentItems.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'flex justify-between items-center text-sm font-bold border-b border-slate-200 dark:border-slate-700 pb-1';
+                div.innerHTML = `
+                    <span>${item.name}</span>
+                    <span class="bg-blue-600 text-white px-2 py-0.5 rounded-lg text-xs">x ${item.newQty}</span>
+                `;
+                itemsContainer.appendChild(div);
+            });
+
+            document.getElementById('kitchen-modal').classList.remove('hidden');
+        }
+
+        function closeKitchenModal() {
+            document.getElementById('kitchen-modal').classList.add('hidden');
+        }
+
+        function triggerKitchenPrint() {
+            const unsentItems = getUnsentKitchenItems();
+            if (unsentItems.length === 0) return;
+
+            const printableArea = document.getElementById('kitchen-printable-area').innerHTML;
+            const printPaper = document.getElementById('print-paper');
+            printPaper.innerHTML = printableArea;
+            window.print();
+
+            // Mark items as sent after print
+            const currentList = tableOrders[selectedTableId] || [];
+            currentList.forEach(item => {
+                item.sentQty = item.qty;
+            });
+
+            saveOrdersState();
+            updateCartDisplay();
+            closeKitchenModal();
+        }
+
         // Checkout Modal & Payment Execution
         function openCheckoutModal() {
             const currentList = tableOrders[selectedTableId] || [];
@@ -1090,7 +1247,7 @@
             }
 
             const subtotal = currentList.reduce((sum, item) => sum + (item.price * item.qty), 0);
-            const total = subtotal; // មិនគណនាពន្ធ
+            const total = subtotal;
 
             document.getElementById('modal-checkout-amount').innerText = `₩${total.toLocaleString()}`;
             document.getElementById('received-amount-input').value = total;
@@ -1178,20 +1335,6 @@
             alert('ការទូទាត់ប្រាក់ទទួលបានជោគជ័យ!');
         }
 
-         // អនុគមន៍សម្រាប់ភ្ជាប់ Bluetooth Receipt Printer ផ្ទាល់
-async function connectBluetoothPrinter() {
-    try {
-        const device = await navigator.bluetooth.requestDevice({
-            filters: [{ services: ['000018f0-0000-1000-8000-00805f9b34fb'] }], // Standard ESC/POS UUID
-            optionalServices: ['000018f0-0000-1000-8000-00805f9b34fb']
-        });
-        const server = await device.gatt.connect();
-        alert("ភ្ជាប់ម៉ាស៊ីនព្រីនបានជោគជ័យ: " + device.name);
-    } catch (error) {
-        console.error("ការភ្ជាប់បរាជ័យ:", error);
-    }
-}
-
         // Receipt Preview & Printing Logic
         function openPrintModal() {
             const currentList = tableOrders[selectedTableId] || [];
@@ -1261,7 +1404,7 @@ async function connectBluetoothPrinter() {
                 return;
             }
 
-            completedTransactions.slice(0, 10).forEach(trans => {
+            completedTransactions.slice(0, 50).forEach(trans => {
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors';
                 tr.innerHTML = `
